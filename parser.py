@@ -3,6 +3,7 @@ import time,os,codecs,sys
 import requests
 from bs4 import BeautifulSoup
 import getpass
+import main
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -32,14 +33,18 @@ def start(zlname):
     sub_folder = os.path.join(os.getcwd(),zlname)
     if not os.path.exists(sub_folder):
         os.mkdir(sub_folder)
+    exists_file = os.listdir(zlname)
     os.chdir(sub_folder)
-    zhuanlan_text(zlname)
+    zhuanlan_text(zlname,exists_file)
 
 def save2html(filename, html):
-    filename = filename + ".html"
-    f = codecs.open(filename, 'a', encoding='utf-8')
-    f.write(html)
-    f.close()
+    try:
+        filename = filename
+        f = codecs.open(filename, 'a', encoding='utf-8')
+        f.write(html)
+        f.close()
+    except:
+        pass
 
 def login(username,password):
     '''登录知乎'''
@@ -52,7 +57,7 @@ def login(username,password):
     r = _session.post(PHONE_LOGIN, data)
     print (r.json())['msg']
 
-def zhuanlan_text(zlname):
+def zhuanlan_text(zlname,exists_file):
     i = 1
     print('-----------------------文章爬取开始-----------------------\n')
     Default_Header = {
@@ -70,7 +75,7 @@ def zhuanlan_text(zlname):
         TextContentHTML = (_session.get(TextAPI+str(offset))).json()
         for everText in TextContentHTML:
 
-            filename = everText['title'].encode('utf-8')
+            filename = everText['title'].encode('utf-8')+ ".html"
             title = '<h1>' + filename + '</h1>'
             author = '<p><b>' + everText['author']['name'].encode('utf-8') + '</b></p>'
             body = everText['content'].encode('utf-8')
@@ -78,16 +83,19 @@ def zhuanlan_text(zlname):
             print('--------------------正在保存第' + str(i) + '个文章--------------------\n')
             save2html(filename,html)
             i = i + 1
-
+            if filename in exists_file:
+                continue
         if(len(TextContentHTML) < 20):
             endFlag = False
         offset = offset + 20
 
     print('-----------------------文章爬取完毕-----------------------\n')
+    os.chdir("..")
 
 if __name__ == '__main__':
-    username = raw_input('phone_num: ')
+    username = raw_input('phone_num: ') 
     password = getpass.getpass('password: ')
     login(username,password)
     zlname = raw_input('请输入专栏英文名: ')
     start(zlname)
+    main.start_transfer(zlname)
