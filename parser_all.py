@@ -4,7 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 import getpass
 import main
-
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -30,21 +29,22 @@ head = '''
 <body>
 '''
 def start(zlname):
-    sub_folder = os.path.join(os.getcwd(),zlname)
+    sub_folder = os.path.join(os.getcwd(),'papers')
     if not os.path.exists(sub_folder):
         os.mkdir(sub_folder)
-    exists_file = os.listdir(zlname)
+    exists_file = os.listdir('papers')
     os.chdir(sub_folder)
     zhuanlan_text(zlname,exists_file)
 
 def save2html(filename, html):
     try:
-        filename = filename
+        filename = filename + '.html'
         f = codecs.open(filename, 'a', encoding='utf-8')
         f.write(html)
         f.close()
     except:
         pass
+
 
 def login(username,password):
     '''登录知乎'''
@@ -67,35 +67,39 @@ def zhuanlan_text(zlname,exists_file):
                   'Host': 'zhuanlan.zhihu.com'}
     _session = requests.session()
     _session.headers.update(Default_Header)
-    TextAPI = BASE_ZHUANLAN_API+ zlname + '/posts?limit=20&offset='
+    TextAPI = BASE_ZHUANLAN_API+ zlname + '/posts?limit=100&offset='
     endFlag = True
     offset = 0
 
     while endFlag:
         TextContentHTML = (_session.get(TextAPI+str(offset))).json()
+        all_body = ''
         for everText in TextContentHTML:
-            filename = everText['title'].encode('utf-8')
+            filename = everText['title'].encode('utf-8') 
             title = '<h1>' + filename + '</h1>'
             author = '<p><b>' + everText['author']['name'].encode('utf-8') + '</b></p>'
             body = everText['content'].encode('utf-8')
-            html = head + title + author + body + "</body></html>"
+            all_body = title + author + body + all_body
             print('--------------------正在保存第' + str(i) + '个文章--------------------\n')
-            filename = filename + '.html'
-            save2html(filename,html)
             i = i + 1
-            if filename in exists_file:
-                continue
-        if(len(TextContentHTML) < 20):
+
+        if zlname in exists_file:
+            continue
+
+        html = head + all_body + "</body></html>"
+        save2html(zlname,html)
+
+        if(len(TextContentHTML) < 100):
             endFlag = False
-        offset = offset + 20
+        offset = offset + 100
 
     print('-----------------------文章爬取完毕-----------------------\n')
     os.chdir("..")
 
 if __name__ == '__main__':
-    username = raw_input('phone_num: ') 
+    username = raw_input('phone_num: ')
     password = getpass.getpass('password: ')
     login(username,password)
     zlname = raw_input('请输入专栏英文名: ')
     start(zlname)
-    main.start_transfer(zlname)
+    main.start_transfer('papers')

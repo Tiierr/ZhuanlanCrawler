@@ -18,15 +18,15 @@ class getImgs:
         exists_file = os.listdir(self.toPath)
         # print all_file
         for each in all_file:
-            print each + ' is start to convert.'
             if not each.endswith('.html') or each in exists_file:
                 continue
+            print each + ' is start to convert.'
             name = each.decode('utf-8')
             FilePath = self.path + name
             soup = BeautifulSoup(open(FilePath),'lxml')
             imgs =  soup.findAll('img')
             for img in imgs:
-                if img['src'].endswith('jpg' or 'png'):
+                if img['src'].endswith('jpg') or img['src'].endswith('png'):
                     img['src'] = 'https://pic4.zhimg.com/' + img['src'][:-4] + '_b.jpg'
                 else:
                     img['src'] = 'https://pic4.zhimg.com/' + img['src'] + '_b.jpg'
@@ -53,8 +53,3 @@ class getImgs:
         if not os.path.exists(sub_folder):
             os.mkdir(sub_folder)
 
-if __name__ == '__main__':
-    path = 'paper'
-    ToPath = path + '_include_image'
-    zh = getImgs(path, ToPath)
-    zh.start()
