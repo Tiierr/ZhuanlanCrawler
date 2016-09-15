@@ -57,6 +57,7 @@ def login(username,password):
     r = _session.post(PHONE_LOGIN, data)
     print (r.json())['msg']
 
+
 def zhuanlan_text(zlname,exists_file):
     i = 1
     print('-----------------------文章爬取开始-----------------------\n')

@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+
 class getImgs:
     def __init__(self, Path, Topath):
         # 得到两个路径
@@ -13,7 +14,7 @@ class getImgs:
 
     def start(self):
         self.pre_work(self.toPath)
-        # 举出html存放路径下所有文件
+        # 举出html存放路径下所有文件 
         all_file = os.listdir(self.path)
         exists_file = os.listdir(self.toPath)
         # print all_file
